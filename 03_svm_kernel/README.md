@@ -10,18 +10,18 @@ kernel - RBF (Gaussian) kernel
 
 ## Features
 
--   Custom SVM implementation\
--   Kernel support\
--   Mini-batch training\
+-   Custom SVM implementation
+-   Kernel support
+-   Mini-batch training
 -   Hinge loss optimization
 
 ------------------------------------------------------------------------
 
 ## Project Structure
 
-. ├── svm.py\
-├── assignment0_03_svm_kernel.ipynb\
-└── README.md
+-   svm.py
+-   assignment0_03_svm_kernel.ipynb
+-   README.md
 
 ------------------------------------------------------------------------
 
