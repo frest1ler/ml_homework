@@ -46,7 +46,7 @@ def gini(y):
 
     return 1 - np.sum(probs ** 2)
     
-def variance(y):
+def variance(y): 
     """
     Computes the variance the provided target values subset
     
@@ -60,12 +60,12 @@ def variance(y):
     float
         Variance of the provided target vector
     """
+    y = y[:, 0]
+    mean = np.mean(y)
     
-    # YOUR CODE HERE
-    
-    return 0.
+    return np.sum((y - mean) ** 2)  / len(y)
 
-def mad_median(y):
+def mad_median(y): 
     """
     Computes the mean absolute deviation from the median in the
     provided target values subset
@@ -81,9 +81,10 @@ def mad_median(y):
         Mean absolute deviation from the median in the provided vector
     """
 
-    # YOUR CODE HERE
+    y = y[:, 0]
+    median = np.median(y)
     
-    return 0.
+    return np.sum(np.abs(y - median)) / len(y)
 
 
 def one_hot_encode(n_classes, y):
