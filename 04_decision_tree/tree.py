@@ -159,12 +159,14 @@ class DecisionTree(BaseEstimator):
         (X_right, y_right) : tuple of np.arrays of same type as input X_subset and y_subset
             Part of the providev subset where selected feature x^j >= threshold
         """
+        mask    = X_subset[:, feature_index] < threshold
 
-        # YOUR CODE HERE
-        
+        X_left, y_left   = X_subset[mask]                , y_subset[mask]
+        X_right, y_right = X_subset[np.logical_not(mask)], y_subset[np.logical_not(mask)]
+
         return (X_left, y_left), (X_right, y_right)
     
-    def make_split_only_y(self, feature_index, threshold, X_subset, y_subset):
+    def make_split_only_y(self, feature_index, threshold, X_subset, y_subset): 
         """
         Split only target values into two subsets with specified feature and threshold
         
@@ -193,9 +195,10 @@ class DecisionTree(BaseEstimator):
                    (n_objects, 1) in regression 
             Part of the provided subset where selected feature x^j >= threshold
         """
+        mask = X_subset[:, feature_index] < threshold
 
-        # YOUR CODE HERE
-        
+        y_left, y_right = y_subset[mask], y_subset[np.logical_not(mask)]
+
         return y_left, y_right
 
     def choose_best_split(self, X_subset, y_subset):
