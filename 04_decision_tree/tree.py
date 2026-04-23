@@ -269,9 +269,23 @@ class DecisionTree(BaseEstimator):
         root_node : Node class instance
             Node of the root of the fitted tree
         """
-
-        # YOUR CODE HERE
+        if len(np.unique(y_subset)) == 1:
+            return Node(value = y_subset[0])
         
+        feature_index, threshold = self.choose_best_split(X_subset, y_subset)
+
+        if feature_index is None:
+            return Node(value = y_subset[0])
+
+        (X_left, y_left), (X_right, y_right) = self.make_split(feature_index, threshold, X_subset, y_subset)
+
+        if len(y_left) == 0 or len(y_right) == 0:
+            return Node(value = y_subset[0])
+        
+        new_node = Node(feature_index, threshold)
+
+        new_node.left_child  = self.make_tree(X_left,  y_left)
+        new_node.right_child = self.make_tree(X_right, y_right)
         return new_node
         
     def fit(self, X, y):
