@@ -223,8 +223,33 @@ class DecisionTree(BaseEstimator):
             Threshold value to perform split
 
         """
-        # YOUR CODE HERE
-        return feature_index, threshold
+        parent_criterion = self.criterion(y_subset)
+
+        best_feature_index = None
+        best_threshold     = None
+        best_gain          = float('-inf')
+
+        for feature_index in range(len(X_subset[0])):
+            column = X_subset[:, feature_index]
+            unique_vals = np.unique(column)
+            if len(unique_vals) <= 1:
+                continue 
+            
+            for i in range(len(unique_vals) - 1):
+                threshold = (unique_vals[i] + unique_vals[i + 1]) / 2
+
+                y_left, y_right  = self.make_split_only_y(feature_index, threshold, X_subset, y_subset)
+                len_y_l, len_y_r = len(y_left), len(y_right)
+                total = len_y_l + len_y_r
+
+                current_gain = parent_criterion - len_y_l / total * self.criterion(y_left) - len_y_r / total * self.criterion(y_right)
+
+                if best_gain < current_gain:
+                    best_gain          = current_gain
+                    best_threshold     = threshold
+                    best_feature_index = feature_index
+
+        return best_feature_index, best_threshold
     
     def make_tree(self, X_subset, y_subset):
         """
