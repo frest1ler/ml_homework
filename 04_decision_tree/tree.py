@@ -16,7 +16,7 @@ def entropy(y):
     float
         Entropy of the provided subset
     """
-    EPS = 0.0005
+    EPS = 1e-9
 
     labels = np.argmax(y, axis = 1)
 
@@ -229,14 +229,19 @@ class DecisionTree(BaseEstimator):
         best_threshold     = None
         best_gain          = float('-inf')
 
-        for feature_index in range(len(X_subset[0])):
+        n_features = X_subset.shape[1]
+
+        for feature_index in range(n_features):
             column = X_subset[:, feature_index]
-            unique_vals = np.unique(column)
-            if len(unique_vals) <= 1:
-                continue 
-            
-            for i in range(len(unique_vals) - 1):
-                threshold = (unique_vals[i] + unique_vals[i + 1]) / 2
+            sorted_vals = np.sort(column)
+
+            if len(sorted_vals) <= 1:
+                continue
+
+            for i in range(len(sorted_vals) - 1):
+                if sorted_vals[i] == sorted_vals[i  + 1]:
+                    continue
+                threshold = (sorted_vals[i] + sorted_vals[i + 1]) / 2
 
                 y_left, y_right  = self.make_split_only_y(feature_index, threshold, X_subset, y_subset)
                 len_y_l, len_y_r = len(y_left), len(y_right)
@@ -244,14 +249,14 @@ class DecisionTree(BaseEstimator):
 
                 current_gain = parent_criterion - len_y_l / total * self.criterion(y_left) - len_y_r / total * self.criterion(y_right)
 
-                if best_gain < current_gain:
-                    best_gain          = current_gain
-                    best_threshold     = threshold
+                if best_feature_index is None or (current_gain > best_gain):
+                    best_gain = current_gain
+                    best_threshold = threshold
                     best_feature_index = feature_index
 
         return best_feature_index, best_threshold
     
-    def make_tree(self, X_subset, y_subset):
+    def make_tree(self, X_subset, y_subset, depth=0):
         """
         Recursively builds the tree
         
@@ -269,23 +274,31 @@ class DecisionTree(BaseEstimator):
         root_node : Node class instance
             Node of the root of the fitted tree
         """
-        if len(np.unique(y_subset)) == 1:
-            return Node(value = y_subset[0])
+        if depth >=  self.max_depth or len(y_subset) <= self.min_samples_split:
+            proba = np.mean(y_subset, axis=0) if self.classification else np.mean(y_subset[:, 0])
+            return Node(feature_index = None, threshold = None, proba = proba)
+        
+        labels = np.argmax(y_subset, axis=1)
+        if len(np.unique(labels)) == 1:
+            proba = np.mean(y_subset, axis=0) if self.classification else np.mean(y_subset[:, 0])
+            return Node(feature_index = None, threshold = None, proba = proba)
         
         feature_index, threshold = self.choose_best_split(X_subset, y_subset)
 
         if feature_index is None:
-            return Node(value = y_subset[0])
+            proba = np.mean(y_subset, axis=0) if self.classification else np.mean(y_subset[:, 0])
+            return Node(feature_index = None, threshold = None, proba = proba)
 
         (X_left, y_left), (X_right, y_right) = self.make_split(feature_index, threshold, X_subset, y_subset)
 
         if len(y_left) == 0 or len(y_right) == 0:
-            return Node(value = y_subset[0])
+            proba = np.mean(y_subset, axis=0) if self.classification else np.mean(y_subset[:, 0])
+            return Node(feature_index = None, threshold = None, proba =  proba)
         
         new_node = Node(feature_index, threshold)
 
-        new_node.left_child  = self.make_tree(X_left,  y_left)
-        new_node.right_child = self.make_tree(X_right, y_right)
+        new_node.left_child  = self.make_tree(X_left,  y_left, depth + 1)
+        new_node.right_child = self.make_tree(X_right, y_right, depth + 1)
         return new_node
         
     def fit(self, X, y):
