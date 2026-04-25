@@ -327,10 +327,21 @@ class DecisionTree(BaseEstimator):
             Column vector of class labels in classification or target values in regression
         
         """
+        y_predicted = np.zeros(len(X))
 
-        # YOUR CODE HERE
-        
-        return y_predicted
+        for i in range(len(X)):
+            node = self.root
+            while node.left_child != None and node.right_child != None:
+                if X[i, node.feature_index] < node.value:
+                    node = node.left_child
+                else:
+                    node = node.right_child
+
+            if self.classification:
+                y_predicted[i] = np.argmax(node.proba)
+            else:
+                y_predicted[i] = node.proba
+        return y_predicted.reshape(-1, 1)  
         
     def predict_proba(self, X):
         """
