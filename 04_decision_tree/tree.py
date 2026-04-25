@@ -361,6 +361,15 @@ class DecisionTree(BaseEstimator):
         """
         assert self.classification, 'Available only for classification problem'
 
-        # YOUR CODE HERE
+        y_predicted_probs = np.zeros((len(X), self.n_classes))
+
+        for i in range(len(X)):
+            node = self.root
+            while node.left_child != None and node.right_child  != None:
+                if X[i, node.feature_index] < node.value:
+                    node = node.left_child
+                else:
+                    node = node.right_child
+            y_predicted_probs[i] = node.proba
         
         return y_predicted_probs
