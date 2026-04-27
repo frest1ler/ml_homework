@@ -33,10 +33,10 @@ README.md
 python -m venv .venv
 source .venv/bin/activate          # On Windows: .venv\Scripts\activate
 pip install numpy scikit-learn matplotlib
-
+```
 ------------------------------------------------------------------------
 
-Usage Example
+## Usage Example
 
 ``` python
 import numpy as np
